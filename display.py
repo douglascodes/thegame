@@ -5,7 +5,7 @@ step = 30
 pygame.init()
 BLUE = (135, 199, 218)
 BLACK = (0,0,0)
-scale = 200
+scale = 256
 _bottom = scale * 3
 _right = scale * 4
 screen = pygame.display.set_mode((_right, _bottom))
