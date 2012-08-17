@@ -14,7 +14,9 @@ BLACK = (0,0,0)
 initial_position = [100, 100]
 _floor = _bottom - 64
 windspeed = 5
+max_health = 300
 rand = random.randrange
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     try:

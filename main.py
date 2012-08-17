@@ -88,6 +88,7 @@ def main():
         cloud_grp.update(now)
         cloud_grp.draw(screen)
         players.draw(screen)                #updates the Player 
+        p1.show_health()
         ladies.update(now)
         ladies.draw(screen)
         p1.playershots_grp.update(now)      
