@@ -5,7 +5,7 @@ step = 30
 pygame.init()
 BLUE = (135, 199, 218)
 BLACK = (0,0,0)
-scale = 256
+scale = 200
 _bottom = scale * 3
 _right = scale * 4
 screen = pygame.display.set_mode((_right, _bottom))
@@ -13,7 +13,7 @@ BLUE = (135, 199, 218)
 BLACK = (0,0,0)
 initial_position = [100, 100]
 _floor = _bottom - 64
-windspeed = 5
+windspeed = 25
 max_health = 300
 rand = random.randrange
 
@@ -30,14 +30,36 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
+class Ground(pygame.sprite.Sprite):
+    def __init__(self): 
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_image("brick2.png", -1)
+        self.w = self.rect.width
+        self.rect.topleft = self.start = (-self.w,_floor)
+        self.end = (_right, _bottom)
+        for x in range(_right/self.w):
+            screen.blit(self.image, (x*self.w, _floor))
+
+    def update(self):
+        self.rect.left -= (windspeed/2)
+        if self.rect.left < -(windspeed + self.w):
+            self.rect.left = -windspeed           
+        for x in range((_right/self.w) + 2 ):
+            screen.blit(self.image, (x*self.w + self.rect.left, _floor))
+        
+#    def update(self):
+#        self.start -= windspeed
+#        if self.start < -self.rect.width:
+#            self.start = -windspeed
+
 class Cloud(pygame.sprite.Sprite):                      #background clouds, A La mario bros
     def __init__(self): 
         pygame.sprite.Sprite.__init__(self)
         cloudtype = rand(1,5)
         self.image, self.rect = load_image("cloud{}.png".format(cloudtype), -1) #picks from 5 images
         self.speed = (windspeed - 2) + cloudtype                        #speed = windspeed + cloudtype
-        self.rect.top = rand(-50, (_floor - self.rect.height - 10) )    
-        self.rect.right = rand(-100, -10)
+        self.rect.top = rand(-50, (_floor - self.rect.height - 10) )    #sets range 
+        self.rect.right = rand(-1000, -1)                               #sets start off screen
         self.next_update_time = 0
                 
     def update(self, current_time):

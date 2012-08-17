@@ -9,6 +9,7 @@ clock = fpsClock = pygame.time.Clock()
 scale = display.scale
 _bottom = scale * 3
 _right = scale * 4
+_floor = display._floor
 screen = pygame.display.set_mode((_right, _bottom))
 background = pygame.Surface(screen.get_size())
 background = background.convert()
@@ -61,7 +62,7 @@ def check_hits():
         y[0].die()
 
 def check_cloud():
-    if len(cloud_grp) < 6:
+    if len(cloud_grp) < numof_clouds:
         cloud_grp.add(display.Cloud())
                                 
 pygame.display.flip()   
@@ -76,9 +77,12 @@ numof_ladies = 2                #how many old ladies do we want
 for x in range(0, numof_ladies):            #for each numof_ we make a random start for a lady
     ladies.add(targets.Oldlady(random.randrange(1, (display._right))))   #starts and oldlady random loc
 cloud_grp = pygame.sprite.Group()
-numof_clouds = 6                #how many clouds do we want
-for x in range(0, numof_clouds):
+numof_clouds = 20               #how many clouds do we want
+for x in range(numof_clouds):
     cloud_grp.add(display.Cloud())
+road = pygame.sprite.GroupSingle()
+g = display.Ground()
+road.add(g)
 
 def main():   
     while p1.health:
@@ -87,6 +91,8 @@ def main():
         now = pygame.time.get_ticks()
         cloud_grp.update(now)
         cloud_grp.draw(screen)
+        road.update()
+        road.draw(screen)
         players.draw(screen)                #updates the Player 
         p1.show_health()
         ladies.update(now)

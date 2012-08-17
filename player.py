@@ -62,7 +62,7 @@ class Player(pygame.sprite.Sprite):
         if curr <= 0:
             curr = 0
         self.rect.topleft = [save, curr]            #reassigns the X,Y to rect.topleft
-        self.adj_health(-50)
+        self.adj_health(-10)
         
     def move_horz(self, amount):
         curr = self.rect.topleft                    #gets the current location as [x,y]
@@ -73,4 +73,4 @@ class Player(pygame.sprite.Sprite):
         if curr <= 0:                               
             curr = 0           
         self.rect.topleft = [curr, save]            #reassigns the X,Y to rect.topleft
-        self.adj_health(50)
+        self.adj_health(10)
