@@ -1,4 +1,4 @@
-import pygame, sys, os, display, main, random
+import pygame, sys, os, display, random, main
 from pygame.locals import *
 
 class Oldlady(pygame.sprite.Sprite):
@@ -31,7 +31,4 @@ class Oldlady(pygame.sprite.Sprite):
             self.next_update_time = current_time + 10
 
     def die(self):
-        main.ladies.remove(self) 
-
-
-        
+        main.ladies.remove(self)

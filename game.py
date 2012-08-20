@@ -90,7 +90,7 @@ road = pygame.sprite.GroupSingle()  #singular group for the Road/Path
 g = display.Ground()                #Creates a ground object known as G
 road.add(g)                         #Adds g to single group for ground
 
-def game():   
+def main():   
     while p1.health:                #Game continues while P1 is alive
         display.screen.fill(BLUE)   #fills the background with named color
         fpsClock.tick(30)           #Paces the game to 30 fps
@@ -112,4 +112,4 @@ def game():
         check_hits()                        #Checks collision between appropriate groups
         check_cloud()                       #Continues to spawn background clouds as necc.
 
-game()  #Runs the main method.
+main()  #Runs the main method.

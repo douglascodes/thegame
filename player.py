@@ -1,9 +1,12 @@
-import pygame, sys, os, display, main, missiles
+import pygame, sys, os, display, missiles, main
 from pygame.locals import *
 
 class Player(pygame.sprite.Sprite):
     image = None
-        
+    vert_state = 0
+    horz_state = 0
+    fire_timer = 0
+       
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
@@ -49,28 +52,24 @@ class Player(pygame.sprite.Sprite):
         self.check_health()
 
     def show_health(self):
-        main.screen.fill([255,0,0], ((self.hbarpos), (display.max_health, 20)))
-        main.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))
+        main.screen.fill([255,0,0], ((self.hbarpos), (display.max_health, 20))) #fills h-bar with red
+        main.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))        
+        #covers h-bar with current helth in green. Red remaining at end. 
+                                                            
 
         
-    def move_vert(self, amount):                    #move the ballon vertically
-        curr = self.rect.topleft                    #gets the current location as [x,y]
-        save, curr = curr                           #splits the x,y of topleft
-        curr += amount                              #increments Y by AMOUNT
-        if curr >= display._floor - self.rect.height:      #limits the movement to outside border
-            curr = display._floor - self.rect.height
-        if curr <= 0:
-            curr = 0
-        self.rect.topleft = [save, curr]            #reassigns the X,Y to rect.topleft
-        self.adj_health(-10)
+    def move_vert(self, amount):                    #move the balloon vertically
+        self.rect.top += amount                              #increments Y by AMOUNT
+        if self.rect.top >= display._floor - self.rect.height:      #limits the movement to outside border
+            self.rect.top = display._floor - self.rect.height
+        if self.rect.top <= 0:
+            self.rect.top = 0
+#        self.adj_health(-10)
         
     def move_horz(self, amount):
-        curr = self.rect.topleft                    #gets the current location as [x,y]
-        curr, save = curr                           #splits the x,y of topleft
-        curr += amount                              #increments the X by AMOUNT
-        if curr >= display._right - self.rect.width:        #limits the movement to outside border
-            curr = display._right - self.rect.width         
-        if curr <= 0:                               
-            curr = 0           
-        self.rect.topleft = [curr, save]            #reassigns the X,Y to rect.topleft
-        self.adj_health(10)
+        self.rect.left += amount                                #increments the X by AMOUNT
+        if self.rect.left >= display._right - self.rect.width:  #limits the movement to outside border
+            self.rect.left = display._right - self.rect.width         
+        if self.rect.left <= 0:                               
+            self.rect.left = 0           
+#        self.adj_health(10)
