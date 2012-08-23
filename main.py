@@ -1,27 +1,28 @@
 import pygame, sys, os, player, display, missiles, targets, random
 from pygame.locals import *
 
-
 #Sets up some global variables, mostly based on the display module's attrib
-step = 40
-pygame.init()
-BLUE = display.BLUE
-BLACK = display.BLACK
+
+scale = 256
+bottom = scale * 3
+right = scale * 4
+BLUE = (135, 199, 218)
+BLACK = (0,0,0)
+initial_position = [100, 100]
+floor = bottom - 64
+windspeed = 5
+max_health = 300
+step = 15
 clock = fpsClock = pygame.time.Clock()
-scale = display.scale
-_bottom = scale * 3
-_right = scale * 4
-_floor = display._floor
-screen = pygame.display.set_mode((_right, _bottom))
-background = pygame.Surface(screen.get_size())
-background = background.convert()
-background.fill(BLUE)
-initial_position = display.initial_position
+screen = pygame.display.set_mode((right, bottom))
 looptime = 30
 pygame.key.set_repeat(1, looptime)
-fire_delay = display.fire_delay
+fire_delay = 1000
+rand = random.randrange
 
-def exit_game():
+pygame.init()
+
+def exit_game(): 
     pygame.quit()
     os._exit(0)
    
@@ -61,13 +62,20 @@ def check_key():
         
             
 def check_hits():   #Collision detection between the ladies and balloon drops
-    hits = pygame.sprite.groupcollide(p1.playershots_grp, ladies, False, False) #Adds collisions to hits
+    hits = pygame.sprite.groupcollide(shots_grp, targs_grp, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
         x.die()                         #Runs the die() method in object X
         y[0].die()                      #Runs the die() method in object Y. It's a list for some reason.
 
-def check_cloud():
+    hits = pygame.sprite.groupcollide(shots_grp, players, False, False) #Adds collisions to hits
+    for x in iter(hits):                #Searches over the collision dictionary
+        y = hits[x]                     #X and Y are the collision. X is key to Y.
+        y[0].adj_health(-x.power)       #adjusts the player health
+        x.die()                         #Runs the die() method in object X
+
+
+def check_cloud():                      #Maintains the level of clouds
     if len(cloud_grp) < numof_clouds:   #Respawns clouds if there are less than expected.
         cloud_grp.add(display.Cloud())  #Adds the new clouds to the group
                                 
@@ -77,23 +85,23 @@ p1 = player.Player()                        #Creates the player character, know 
 players = pygame.sprite.GroupSingle()       #intitates the singleton group for player
 players.add(p1)                             #adds player 1 to the singleton group
 
+targs_grp = pygame.sprite.Group()               #initiates the old lady group
+targs_grp.add(targets.Guard(rand(1, (right))))  #starts and oldlady random loc
 
-ladies = pygame.sprite.Group()  #initiates the old lady group
-numof_ladies = 2                #how many old ladies do we want
-for x in range(0, numof_ladies):            #for each numof_ we make a random start for a lady
-    ladies.add(targets.Oldlady(random.randrange(1, (display._right))))   #starts and oldlady random loc
-cloud_grp = pygame.sprite.Group()
-numof_clouds = 20               #how many clouds do we want
+cloud_grp = pygame.sprite.Group()   #holds clouds
+shots_grp = pygame.sprite.Group()   #holds all projectiles
+numof_clouds = 7                    #how many clouds do we want
+
 for x in range(numof_clouds):       #creates clouds per numof_coulds
     cloud_grp.add(display.Cloud())  #adds em to cloud grp
 road = pygame.sprite.GroupSingle()  #singular group for the Road/Path
-g = display.Ground()                #Creates a ground object known as G
+g = display.Ground()                #Creates the ground object known as G
 road.add(g)                         #Adds g to single group for ground
 
 def game():   
     while p1.health:                #Game continues while P1 is alive
-        display.screen.fill(BLUE)   #fills the background with named color
-        fpsClock.tick(30)           #Paces the game to 30 fps
+        screen.fill(BLUE)           #fills the background with named color
+        fpsClock.tick(looptime)         #Paces the game to 30 fps
         now = pygame.time.get_ticks()   #sets 'NOW' to ... well... now
         cloud_grp.update(now)           #passes the current time to the cloud update group
         cloud_grp.draw(screen)          #draws the clouds to screen
@@ -101,15 +109,15 @@ def game():
         road.draw(screen)               #Draws the road
         players.draw(screen)            #updates the Player 
         p1.show_health()                #Dislays the health bar
-        ladies.update(now)              #Makes the ladies move
-        ladies.draw(screen)             #Draws em to the screen
-        p1.playershots_grp.update(now)      #Updates the balloon drops
-        p1.playershots_grp.draw(screen)     #Draws em to screen
-        p1.splashes_grp.update(now)         #Updates the splashes states
-        p1.splashes_grp.draw(screen)        #Draws em
-        pygame.display.flip()               #Draws the screen
-        check_key()                         #Looks for key presses/unpress
-        check_hits()                        #Checks collision between appropriate groups
-        check_cloud()                       #Continues to spawn background clouds as necc.
+        targs_grp.update(now)           #Makes the targs_grp move
+        targs_grp.draw(screen)          #Draws em to the screen
+        shots_grp.update(now)           #Updates the balloon drops
+        shots_grp.draw(screen)          #Draws em to screen
+        p1.splashes_grp.update(now)     #Updates the splashes states
+        p1.splashes_grp.draw(screen)    #Draws em
+        pygame.display.flip()           #Draws the screen
+        check_key()                     #Looks for key presses/unpress
+        check_hits()                    #Checks collision between appropriate groups
+        check_cloud()                   #Continues to spawn background clouds as necc.
 
-game()  #Runs the main method.
+game()  #Runs the game.

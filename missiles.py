@@ -14,7 +14,7 @@ class Fire(pygame.sprite.Sprite):
         if self.next_update_time <= current_time:
             if self.going_down: self.rect.top += 5
             
-            if self.rect.top >= display._floor - self.rect.height: #if bomb hits the ground explode into a splash
+            if self.rect.top >= main.floor - self.rect.height: #if bomb hits the ground explode into a splash
                 self.going_down = False
                 self.die()
             #move our position up or down by ten pixels
@@ -23,7 +23,7 @@ class Fire(pygame.sprite.Sprite):
 
     def die(self):
         main.p1.pop_splash(self.rect.topleft)
-        main.p1.playershots_grp.remove(self) 
+        main.shots_grp.remove(self) 
 
 class Splash(pygame.sprite.Sprite):
     existence = 1200
@@ -40,3 +40,26 @@ class Splash(pygame.sprite.Sprite):
 
     def die(self):
         main.p1.splashes_grp.remove(self)
+        
+class Bullets(pygame.sprite.Sprite):
+    def __init__(self, ip, dir):
+        pygame.sprite.Sprite.__init__(self)
+        self.dir = dir
+        if dir[0] < 0:        
+            self.image, self.rect = display.load_image("bulletL.png", -1)
+        if dir[0] > 0:        
+            self.image, self.rect = display.load_image("bulletR.png", -1)
+        self.rect.bottomleft = ip
+        self.next_update_time = 0
+        self.power = 20
+                
+    def update(self, current_time):
+        if self.next_update_time <= current_time:
+            self.rect.move_ip(self.dir) 
+            self.next_update_time = current_time + 10
+        
+        if self.rect.bottom < 0:
+            self.die()        
+
+    def die(self):
+        main.shots_grp.remove(self) 
