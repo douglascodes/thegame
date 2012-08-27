@@ -21,8 +21,12 @@ class Player(pygame.sprite.Sprite):
         self.traveled = 0                               #tracks game length
         self.points = 0                                 #points this round
         self.splashes_grp = pygame.sprite.Group()       #sprite group for splashes 
-        self.hbarpos = (10,10)
-
+        self.hbarpos = (0,20)
+        self.pbarpos = (0,0)
+        self.map = display.Map()
+        self.map_dist = self.map.length
+        self.prog = 0.0
+        
     def update(self):
         main.screen.blit(self.image, self.rect)
     
@@ -33,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.score = self.traveled + self.points
     
     def fire_weapon(self):                          #drops a balloon
-        main.shots_grp.add(missiles.Fire(self.rect.midbottom))
+        main.pshots_grp.add(missiles.Fire(self.rect.midbottom))
 
     def pop_splash(self, ip):                          #drops a balloon
         self.splashes_grp.add(missiles.Splash(ip))
@@ -50,15 +54,20 @@ class Player(pygame.sprite.Sprite):
         self.check_health()
 
     def show_health(self):
-        main.screen.fill([255,0,0], ((self.hbarpos), (main.max_health, 20))) #fills h-bar with red
+        main.screen.fill([255,0,0], ((self.hbarpos), (main.max_health, 20)))    #fills h-bar with red
         main.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))        
         #covers h-bar with current health in green. Red remaining at end. 
                                                             
-
+    def show_prog(self):
+        if self.prog == self.map_dist:
+            main.map_end()
+        self.prog = main.windspeed + self.prog
+        self.pbar = int(main.right * (self.prog/ self.map_dist))
+        main.screen.fill([240,240,0], ((self.pbarpos), (self.pbar, 20)))  #fills h-bar with red
         
-    def move_vert(self, amount):                    #move the balloon vertically
-        self.rect.top += amount                              #increments Y by AMOUNT
-        if self.rect.top >= main.floor - self.rect.height:      #limits the movement to outside border
+    def move_vert(self, amount):                            #move the balloon vertically
+        self.rect.top += amount                             #increments Y by AMOUNT
+        if self.rect.top >= main.floor - self.rect.height:  #limits the movement to outside border
             self.rect.top = main.floor - self.rect.height
         if self.rect.top <= 0:
             self.rect.top = 0

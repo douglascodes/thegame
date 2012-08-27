@@ -23,7 +23,7 @@ class Fire(pygame.sprite.Sprite):
 
     def die(self):
         main.p1.pop_splash(self.rect.topleft)
-        main.shots_grp.remove(self) 
+        main.pshots_grp.remove(self) 
 
 class Splash(pygame.sprite.Sprite):
     existence = 1200
@@ -45,10 +45,9 @@ class Bullets(pygame.sprite.Sprite):
     def __init__(self, ip, dir):
         pygame.sprite.Sprite.__init__(self)
         self.dir = dir
+        self.image, self.rect = display.load_image("bullet.png", -1)
         if dir[0] < 0:        
-            self.image, self.rect = display.load_image("bulletL.png", -1)
-        if dir[0] > 0:        
-            self.image, self.rect = display.load_image("bulletR.png", -1)
+            self.image = pygame.transform.flip(self.image, True, False)
         self.rect.bottomleft = ip
         self.next_update_time = 0
         self.power = 20
@@ -62,4 +61,4 @@ class Bullets(pygame.sprite.Sprite):
             self.die()        
 
     def die(self):
-        main.shots_grp.remove(self) 
+        main.eshots_grp.remove(self) 

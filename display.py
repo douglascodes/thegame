@@ -23,8 +23,9 @@ class Goal:
     pass
 
 class Map:
-    length = 1000
-    pass
+    def __init__(self): 
+        self.length = 10000
+        return
 
 class Ground(pygame.sprite.Sprite):         #Creates a ground/walkway for the floor
     def __init__(self): 

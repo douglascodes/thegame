@@ -10,9 +10,9 @@ BLUE = (135, 199, 218)
 BLACK = (0,0,0)
 initial_position = [100, 100]
 floor = bottom - 64
-windspeed = 5
+windspeed = 50
 max_health = 300
-step = 15
+step = 20
 clock = fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode((right, bottom))
 looptime = 30
@@ -62,13 +62,13 @@ def check_key():
         
             
 def check_hits():   #Collision detection between the ladies and balloon drops
-    hits = pygame.sprite.groupcollide(shots_grp, targs_grp, False, False) #Adds collisions to hits
+    hits = pygame.sprite.groupcollide(pshots_grp, targs_grp, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
         x.die()                         #Runs the die() method in object X
         y[0].die()                      #Runs the die() method in object Y. It's a list for some reason.
 
-    hits = pygame.sprite.groupcollide(shots_grp, players, False, False) #Adds collisions to hits
+    hits = pygame.sprite.groupcollide(eshots_grp, players, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
         y[0].adj_health(-x.power)       #adjusts the player health
@@ -78,19 +78,24 @@ def check_hits():   #Collision detection between the ladies and balloon drops
 def check_cloud():                      #Maintains the level of clouds
     if len(cloud_grp) < numof_clouds:   #Respawns clouds if there are less than expected.
         cloud_grp.add(display.Cloud())  #Adds the new clouds to the group
+
+def map_end():
+    exit_game()
                                 
 pygame.display.flip()   
-
 p1 = player.Player()                        #Creates the player character, know as P1
 players = pygame.sprite.GroupSingle()       #intitates the singleton group for player
 players.add(p1)                             #adds player 1 to the singleton group
 
 targs_grp = pygame.sprite.Group()               #initiates the old lady group
-targs_grp.add(targets.Guard(rand(1, (right))))  #starts and oldlady random loc
+for x in range(3):
+    targs_grp.add(targets.Guard(rand(1, (right))))  #starts and oldlady random loc
+    targs_grp.add(targets.Oldlady(rand(1, (right))))  #starts and oldlady random loc
 
 cloud_grp = pygame.sprite.Group()   #holds clouds
-shots_grp = pygame.sprite.Group()   #holds all projectiles
-numof_clouds = 7                    #how many clouds do we want
+pshots_grp = pygame.sprite.Group()   #holds all player projectiles
+eshots_grp = pygame.sprite.Group()   #holds all enemy projectiles
+numof_clouds = 20                    #how many clouds do we want
 
 for x in range(numof_clouds):       #creates clouds per numof_coulds
     cloud_grp.add(display.Cloud())  #adds em to cloud grp
@@ -99,6 +104,7 @@ g = display.Ground()                #Creates the ground object known as G
 road.add(g)                         #Adds g to single group for ground
 
 def game():   
+
     while p1.health:                #Game continues while P1 is alive
         screen.fill(BLUE)           #fills the background with named color
         fpsClock.tick(looptime)         #Paces the game to 30 fps
@@ -108,16 +114,20 @@ def game():
         road.update()                   #Updates the single group 'road', no time is needed. Based on pos
         road.draw(screen)               #Draws the road
         players.draw(screen)            #updates the Player 
+        p1.show_prog()
         p1.show_health()                #Dislays the health bar
         targs_grp.update(now)           #Makes the targs_grp move
         targs_grp.draw(screen)          #Draws em to the screen
-        shots_grp.update(now)           #Updates the balloon drops
-        shots_grp.draw(screen)          #Draws em to screen
+        pshots_grp.update(now)           #Updates the balloon drops
+        pshots_grp.draw(screen)          #Draws em to screen
+        eshots_grp.update(now)           #Updates the enemy shots
+        eshots_grp.draw(screen)          #Draws em to screen
         p1.splashes_grp.update(now)     #Updates the splashes states
         p1.splashes_grp.draw(screen)    #Draws em
         pygame.display.flip()           #Draws the screen
         check_key()                     #Looks for key presses/unpress
         check_hits()                    #Checks collision between appropriate groups
         check_cloud()                   #Continues to spawn background clouds as necc.
-
+        
+        
 game()  #Runs the game.
