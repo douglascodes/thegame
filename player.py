@@ -1,4 +1,4 @@
-import pygame, sys, os, display, missiles, main
+import pygame, sys, os, display, missiles, groups
 from pygame.locals import *
 
 class Player(pygame.sprite.Sprite):
@@ -15,12 +15,11 @@ class Player(pygame.sprite.Sprite):
         
         self.image, self.rect = Player.image, Player.rect
         
-        self.rect.topleft = main.initial_position            #sets the balloon start at ip 
-        self.score = 0                                  #points total over game
-        self.health = main.max_health                               #current health is 100
-        self.traveled = 0                               #tracks game length
-        self.points = 0                                 #points this round
-        self.splashes_grp = pygame.sprite.Group()       #sprite group for splashes 
+        self.rect.topleft = display.env.initial_position    #sets the balloon start at ip 
+        self.score = 0                                      #points total over game
+        self.health = display.env.max_health                #current health is 100
+        self.traveled = 0                                   #tracks game length
+        self.points = 0                                     #points this round
         self.hbarpos = (0,20)
         self.pbarpos = (0,0)
         self.map = display.Map()
@@ -28,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.prog = 0.0
         
     def update(self):
-        main.screen.blit(self.image, self.rect)
+        display.env.screen.blit(self.image, self.rect)
     
     def die(self):                                  #sets death animation and
         pass
@@ -37,46 +36,44 @@ class Player(pygame.sprite.Sprite):
         self.score = self.traveled + self.points
     
     def fire_weapon(self):                          #drops a balloon
-        main.pshots_grp.add(missiles.Fire(self.rect.midbottom))
+        groups.pshots.add(missiles.Fire(self.rect.midbottom))
 
-    def pop_splash(self, ip):                          #drops a balloon
-        self.splashes_grp.add(missiles.Splash(ip))
-       
     def check_health(self):                         #checks the players current health
         if self.health <= 0:
             self.health = 0
             self.die()                              #runs death if health is 0
-        if self.health >= main.max_health:
-            self.health = main.max_health        #if health bonus exceeds 100, set to 100
+        if self.health >= display.env.max_health:
+            self.health = display.env.max_health        #if health bonus exceeds 100, set to 100
                         
     def adj_health(self, amount):                   #checks the players current health
         self.health += amount
         self.check_health()
 
     def show_health(self):
-        main.screen.fill([255,0,0], ((self.hbarpos), (main.max_health, 20)))    #fills h-bar with red
-        main.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))        
+        display.env.screen.fill([255,0,0], ((self.hbarpos), (display.env.max_health, 20)))    #fills h-bar with red
+        display.env.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))        
         #covers h-bar with current health in green. Red remaining at end. 
                                                             
     def show_prog(self):
-        if self.prog == self.map_dist:
-            main.map_end()
-        self.prog = main.windspeed + self.prog
-        self.pbar = int(main.right * (self.prog/ self.map_dist))
-        main.screen.fill([240,240,0], ((self.pbarpos), (self.pbar, 20)))  #fills h-bar with red
+        self.prog = display.env.windspeed + self.prog
+        self.pbar = int(display.env.right * (self.prog/ self.map_dist))
+        display.env.screen.fill([240,240,0], ((self.pbarpos), (self.pbar, 20)))  #fills h-bar with red
         
     def move_vert(self, amount):                            #move the balloon vertically
         self.rect.top += amount                             #increments Y by AMOUNT
-        if self.rect.top >= main.floor - self.rect.height:  #limits the movement to outside border
-            self.rect.top = main.floor - self.rect.height
+        if self.rect.top >= display.env.floor - self.rect.height:  #limits the movement to outside border
+            self.rect.top = display.env.floor - self.rect.height
         if self.rect.top <= 0:
             self.rect.top = 0
 #        self.adj_health(-10)
         
     def move_horz(self, amount):
         self.rect.left += amount                                #increments the X by AMOUNT
-        if self.rect.left >= main.right - self.rect.width:  #limits the movement to outside border
-            self.rect.left = main.right - self.rect.width         
+        if self.rect.left >= display.env.right - self.rect.width:  #limits the movement to outside border
+            self.rect.left = display.env.right - self.rect.width         
         if self.rect.left <= 0:                               
             self.rect.left = 0           
 #        self.adj_health(10)
+
+p1 = Player() #Creates the player character, know as P1
+groups.players.add(p1)

@@ -1,4 +1,4 @@
-import pygame, sys, os, display, main
+import pygame, sys, os, display, groups
 from pygame.locals import *
 
 class Fire(pygame.sprite.Sprite):
@@ -14,7 +14,7 @@ class Fire(pygame.sprite.Sprite):
         if self.next_update_time <= current_time:
             if self.going_down: self.rect.top += 5
             
-            if self.rect.top >= main.floor - self.rect.height: #if bomb hits the ground explode into a splash
+            if self.rect.top >= display.env.floor - self.rect.height: #if bomb hits the ground explode into a splash
                 self.going_down = False
                 self.die()
             #move our position up or down by ten pixels
@@ -22,8 +22,8 @@ class Fire(pygame.sprite.Sprite):
             self.next_update_time = current_time + 10
 
     def die(self):
-        main.p1.pop_splash(self.rect.topleft)
-        main.pshots_grp.remove(self) 
+        groups.splashes.add(Splash(self.rect.topleft))
+        groups.pshots.remove(self) 
 
 class Splash(pygame.sprite.Sprite):
     existence = 1200
@@ -39,7 +39,7 @@ class Splash(pygame.sprite.Sprite):
             self.die()
 
     def die(self):
-        main.p1.splashes_grp.remove(self)
+        groups.splashes.remove(self)
         
 class Bullets(pygame.sprite.Sprite):
     def __init__(self, ip, dir):
@@ -61,4 +61,4 @@ class Bullets(pygame.sprite.Sprite):
             self.die()        
 
     def die(self):
-        main.eshots_grp.remove(self) 
+        groups.eshots.remove(self) 
