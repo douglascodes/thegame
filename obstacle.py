@@ -1,4 +1,4 @@
-import pygame, sys, os, display, random, main
+import pygame, sys, os, display
 from pygame.locals import *
 
 class Obstacle(pygame.sprite.Sprite()):
@@ -9,4 +9,3 @@ class AirObs (Obstacle):
 
 class LandObs (Obstacle):
     pass
-       

@@ -42,11 +42,11 @@ class Splash(pygame.sprite.Sprite):
         groups.splashes.remove(self)
         
 class Bullets(pygame.sprite.Sprite):
-    def __init__(self, ip, dir):
+    def __init__(self, ip, direction):
         pygame.sprite.Sprite.__init__(self)
-        self.dir = dir
+        self.dir = direction
         self.image, self.rect = display.load_image("bullet.png", -1)
-        if dir[0] < 0:        
+        if self.dir[0] < 0:        
             self.image = pygame.transform.flip(self.image, True, False)
         self.rect.bottomleft = ip
         self.next_update_time = 0

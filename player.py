@@ -21,11 +21,8 @@ class Player(pygame.sprite.Sprite):
         self.traveled = 0                                   #tracks game length
         self.points = 0                                     #points this round
         self.hbarpos = (0,20)
-        self.pbarpos = (0,0)
-        self.map = display.Map()
-        self.map_dist = self.map.length
-        self.prog = 0.0
-        
+        self.pause_map = False
+
     def update(self):
         display.env.screen.blit(self.image, self.rect)
     
@@ -36,6 +33,11 @@ class Player(pygame.sprite.Sprite):
         self.score = self.traveled + self.points
     
     def fire_weapon(self):                          #drops a balloon
+#        self.pause_map = not self.pause_map
+#        if self.pause_map:
+#            display.env.windspeed = 0
+#        else:
+#            display.env.windspeed = 10
         groups.pshots.add(missiles.Fire(self.rect.midbottom))
 
     def check_health(self):                         #checks the players current health
@@ -49,16 +51,15 @@ class Player(pygame.sprite.Sprite):
         self.health += amount
         self.check_health()
 
+    def adj_score(self, amount):                   #checks the players current health
+        self.score += amount
+        print self.score
+
     def show_health(self):
         display.env.screen.fill([255,0,0], ((self.hbarpos), (display.env.max_health, 20)))    #fills h-bar with red
         display.env.screen.fill([0,255,0], ((self.hbarpos), (self.health, 20)))        
         #covers h-bar with current health in green. Red remaining at end. 
                                                             
-    def show_prog(self):
-        self.prog = display.env.windspeed + self.prog
-        self.pbar = int(display.env.right * (self.prog/ self.map_dist))
-        display.env.screen.fill([240,240,0], ((self.pbarpos), (self.pbar, 20)))  #fills h-bar with red
-        
     def move_vert(self, amount):                            #move the balloon vertically
         self.rect.top += amount                             #increments Y by AMOUNT
         if self.rect.top >= display.env.floor - self.rect.height:  #limits the movement to outside border

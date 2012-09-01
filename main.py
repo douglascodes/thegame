@@ -1,4 +1,4 @@
-import pygame, sys, os, display, player, missiles, targets, random, groups
+import pygame, os, display, player, groups, missiles, targets, random, level
 from pygame.locals import *
 
 def exit_game(): 
@@ -16,7 +16,7 @@ def check_key():
     if player.p1.vert_state != False:
         player.p1.move_vert(display.env.step * player.p1.vert_state)
     
-    #Keydown states either escape, fire or set the move Dirs.
+    #Keydown states either escape, fire or set the move Di rs.
     #This allows the movement simultaneously of horizontal and vertical
     for event in pygame.event.get():
         if not hasattr(event, 'key'): continue 
@@ -44,6 +44,7 @@ def check_hits():   #Collision detection between the ladies and balloon drops
     hits = pygame.sprite.groupcollide(groups.pshots, groups.targs, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
+        player.p1.adj_score(y[0].value)
         x.die()                         #Runs the die() method in object X
         y[0].die()                      #Runs the die() method in object Y. It's a list for some reason.
 
@@ -58,28 +59,50 @@ def check_cloud():                      #Maintains the level of clouds
     if len(groups.clouds) < groups.numof_clouds:   #Respawns clouds if there are less than expected.
         groups.clouds.add(display.Cloud())  #Adds the new clouds to the group
 
+def populate(curr_map):
+    for x in range(groups.numof_clouds):       #creates clouds per numof_coulds
+        groups.clouds.add(display.Cloud())     #adds em to cloud group
+    
+    enemy_count = curr_map.length / display.env.scale
+    kinds = ["None", "OldLady", "Guard"]
+    for x in range(enemy_count):
+        pos = rand(curr_map.pos, curr_map.length)
+        kind = kinds[rand(2)+1]
+        curr_map.enemies.append([pos, kind])
+        
+    curr_map.enemies = sorted(curr_map.enemies)    
+    curr_map.next_enemy = curr_map.enemies.pop(0)
+    
+def spawn(curr_map):
+    if curr_map.enemies:
+        while curr_map.next_enemy[0] < curr_map.pos + display.env.right + display.env.scale*2:
+            if curr_map.next_enemy[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_enemy[0], curr_map.pos))
+            if curr_map.next_enemy[1] == "OldLady": groups.targs.add(targets.Oldlady(curr_map.next_enemy[0], curr_map.pos))
+            curr_map.next_enemy = curr_map.enemies.pop(0)
+
 def map_end():
     exit_game()
                                 
 def game():   
-    for x in range(groups.numof_clouds):       #creates clouds per numof_coulds
-        groups.clouds.add(display.Cloud())     #adds em to cloud group
     clock = pygame.time.Clock()
     screen = display.env.screen
+    curr_map = level.map
+    populate(curr_map)
+    curr_map.next_enemy = curr_map.enemies.pop(0)
     while player.p1.health:                #Game continues while P1 is alive
-        if player.p1.prog == player.p1.map_dist:
-            map_end()
+        if curr_map.pos > curr_map.length: map_end()
+        spawn(curr_map)           
         display.env.screen.fill(display.env.BLUE)           #fills the background with named color
         clock.tick(display.env.looptime)         #Paces the game to 30 fps
         now = pygame.time.get_ticks()   #sets 'NOW' to ... well... now
         groups.clouds.update(now)           #passes the current time to the cloud update group
         groups.clouds.draw(screen)          #draws the clouds to screen
+        curr_map.update()
         groups.road.update()                   #Updates the single group 'road', no time is needed. Based on pos
         groups.road.draw(screen)               #Draws the road
         groups.players.draw(screen)            #updates the Player 
-        player.p1.show_prog()
-        player.p1.show_health()                #Dislays the health bar
-        groups.targs.update(now)           #Makes the targs_grp move
+        player.p1.show_health()                #Displays the health bar
+        groups.targs.update(now, curr_map.pos)           #Makes the targs_grp move
         groups.targs.draw(screen)          #Draws em to the screen
         groups.pshots.update(now)           #Updates the balloon drops
         groups.pshots.draw(screen)          #Draws em to screen
@@ -91,6 +114,7 @@ def game():
         check_key()                     #Looks for key presses/unpress
         check_hits()                    #Checks collision between appropriate groups
         check_cloud()                   #Continues to spawn background clouds as necc.
-        
-        
+
+rand = random.randrange
+
 game()  #Runs the game.

@@ -12,7 +12,7 @@ class Env():
         self.BLACK = (0,0,0)
         self.initial_position = [100, 100]
         self.floor = self.bottom - 64
-        self.windspeed = 10
+        self.windspeed = 5
         self.max_health = 300
         self.step = 20
 #        self.clock = fpsClock = pygame.time.Clock()
@@ -36,17 +36,6 @@ def load_image(name, colorkey=None):
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
-
-class Goal():
-    x = 10
-    y = 100
-    bonus = 1,000,000
-    pass
-
-class Map():
-    def __init__(self): 
-        self.length = 10000
-        return
 
 class Ground(pygame.sprite.Sprite):         #Creates a ground/walkway for the floor
     def __init__(self): 
@@ -93,7 +82,6 @@ class Cloud(pygame.sprite.Sprite):                      #background clouds, A La
     def die(self):
         groups.clouds.remove(self)             #dies by being removed from list.
 
-map = Map()       
 env = Env()
 g = Ground()                    #Creates the ground object known as G
 groups.road.add(g)              #Adds g to single group for ground
