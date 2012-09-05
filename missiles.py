@@ -8,14 +8,13 @@ class Fire(pygame.sprite.Sprite):
         self.image, self.rect = display.load_image("redball.png", -1)
         self.rect.topleft = ip
         self.next_update_time = 0
-        self.going_down = True
-                
+
     def update(self, current_time):
         if self.next_update_time <= current_time:
-            if self.going_down: self.rect.top += 5
-            
+            self.rect.top += 5
+            self.rect.left -= display.env.windspeed / 2
+                        
             if self.rect.top >= display.env.floor - self.rect.height: #if bomb hits the ground explode into a splash
-                self.going_down = False
                 self.die()
             #move our position up or down by ten pixels
             

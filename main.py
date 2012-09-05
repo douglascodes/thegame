@@ -16,7 +16,7 @@ def check_key():
     if player.p1.vert_state != False:
         player.p1.move_vert(display.env.step * player.p1.vert_state)
     
-    #Keydown states either escape, fire or set the move Di rs.
+    #Keydown states either escape, fire or set the move Dirs.
     #This allows the movement simultaneously of horizontal and vertical
     for event in pygame.event.get():
         if not hasattr(event, 'key'): continue 
@@ -51,7 +51,7 @@ def check_hits():   #Collision detection between the ladies and balloon drops
     hits = pygame.sprite.groupcollide(groups.eshots, groups.players, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
-        y[0].adj_health(-x.power)       #adjusts the player health
+        #y[0].adj_health(-x.power)       #adjusts the player health
         x.die()                         #Runs the die() method in object X
 
 
@@ -64,21 +64,26 @@ def populate(curr_map):
         groups.clouds.add(display.Cloud())     #adds em to cloud group
     
     enemy_count = curr_map.length / display.env.scale
-    kinds = ["None", "OldLady", "Guard"]
-    for x in range(enemy_count):
+    kinds = ["None", "Oldlady", "Guard", "Goal"]
+    for x in range(enemy_count): 
         pos = rand(curr_map.pos, curr_map.length)
         kind = kinds[rand(2)+1]
-        curr_map.enemies.append([pos, kind])
-        
-    curr_map.enemies = sorted(curr_map.enemies)    
-    curr_map.next_enemy = curr_map.enemies.pop(0)
-    
+        curr_map.spawn_list.append([pos, kind])
+
+    curr_map.spawn_list.append([curr_map.length, "Goal"])   #adds a goal to the end of map
+    curr_map.spawn_list = sorted(curr_map.spawn_list)    
+    curr_map.next_spawn = curr_map.spawn_list.pop(0)
+    curr_map.spawn_list.append([curr_map.length, "END"])   #Terminus to spawns
+
+   
 def spawn(curr_map):
-    if curr_map.enemies:
-        while curr_map.next_enemy[0] < curr_map.pos + display.env.right + display.env.scale*2:
-            if curr_map.next_enemy[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_enemy[0], curr_map.pos))
-            if curr_map.next_enemy[1] == "OldLady": groups.targs.add(targets.Oldlady(curr_map.next_enemy[0], curr_map.pos))
-            curr_map.next_enemy = curr_map.enemies.pop(0)
+    if curr_map.next_spawn[1] != "END":
+        while curr_map.next_spawn[0] < curr_map.pos + display.env.right + display.env.scale*2:
+            if curr_map.next_spawn[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_spawn[0], curr_map.pos))
+            elif curr_map.next_spawn[1] == "Oldlady": groups.targs.add(targets.Oldlady(curr_map.next_spawn[0], curr_map.pos))
+            elif curr_map.next_spawn[1] == "Goal": groups.targs.add(level.Goal(curr_map.next_spawn[0], curr_map.pos))
+            elif curr_map.next_spawn[1] == "END": return
+            curr_map.next_spawn = curr_map.spawn_list.pop(0)
 
 def map_end():
     exit_game()
@@ -88,9 +93,10 @@ def game():
     screen = display.env.screen
     curr_map = level.map
     populate(curr_map)
-    curr_map.next_enemy = curr_map.enemies.pop(0)
+    curr_map.next_spawn = curr_map.spawn_list.pop(0)
     while player.p1.health:                #Game continues while P1 is alive
         if curr_map.pos > curr_map.length: map_end()
+        
         spawn(curr_map)           
         display.env.screen.fill(display.env.BLUE)           #fills the background with named color
         clock.tick(display.env.looptime)         #Paces the game to 30 fps

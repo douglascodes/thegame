@@ -11,12 +11,12 @@ class Oldlady(pygame.sprite.Sprite):
         self.range = display.env.scale *2
         self.rect.top = (display.env.floor - self.rect.height)
         self.next_update_time = 0
-        self.going_right = False
-        self.step = random.randrange(2, display.env.windspeed, 1)
+        self.going_right = True
+        self.step = display.env.windspeed
         self.rect.left = ip - map_xpos
         self.relative_xpos = ip
         self.limit_l, self.limit_r = self.relative_xpos - self.range, self.relative_xpos+ self.range/2
-        self.value = 1000
+        self.value = 800
                 
     def update(self, current_time, map_xpos):
 
@@ -51,19 +51,19 @@ class Guard(pygame.sprite.Sprite):
         self.range = display.env.scale *2
         self.rect.top = (display.env.floor - self.rect.height)
         self.next_update_time = 0
-        self.going_right = False
-        self.step = random.randrange(2, 15, 1)
+        self.going_right = True
+        self.step = display.env.windspeed
         self.rect.left = ip - map_xpos
         self.relative_xpos = ip
         self.limit_l, self.limit_r = self.relative_xpos - self.range, self.relative_xpos+ self.range/2
         self.next_shot = pygame.time.get_ticks() + display.env.fire_delay
-        self.value = 1000
+        self.value = 500
 
         
     def update(self, current_time, map_xpos):
         if self.next_update_time <= current_time:
             if self.going_right:
-                self.relative_xpos += self.step *2
+                self.relative_xpos += self.step*2
             else: self.relative_xpos -= self.step
             
             if self.relative_xpos <= self.limit_l: 
@@ -76,6 +76,7 @@ class Guard(pygame.sprite.Sprite):
                 #change image to reverse
             
             self.rect.left = self.relative_xpos - map_xpos
+            self.next_update_time = current_time + 10
         
         if current_time > self.next_shot:
             self.shoot()
