@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         
         self.image, self.rect = Player.image, Player.rect
         
-        self.rect.topleft = display.env.initial_position    #sets the balloon start at ip 
+        self.rect.topleft = display.env.initial_position    #sets the balloon start at IP 
         self.score = 0                                      #points total over game
         self.health = display.env.max_health                #current health is 100
         self.traveled = 0                                   #tracks game length

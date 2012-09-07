@@ -41,8 +41,22 @@ class Splash(pygame.sprite.Sprite):
         groups.splashes.remove(self)
         
 class Bullets(pygame.sprite.Sprite):
-    def __init__(self, ip, direction):
+    def __init__(self, ip, player_xy):
         pygame.sprite.Sprite.__init__(self)
+        
+        #calculate trajectory for X, Y of direction.
+        step = -5
+        opp = float(ip[1] - player_xy[1])
+        adj = float(ip[0] - player_xy[0])
+        tang = opp / adj
+        
+        bigstep = tang * step
+        
+        if adj > 0:
+            direction = (step, bigstep)
+        else:
+            direction = (bigstep, step)
+
         self.dir = direction
         self.image, self.rect = display.load_image("bullet.png", -1)
         if self.dir[0] < 0:        
@@ -60,4 +74,4 @@ class Bullets(pygame.sprite.Sprite):
             self.die()        
 
     def die(self):
-        groups.eshots.remove(self) 
+        groups.eshots.remove(self)

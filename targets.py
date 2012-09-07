@@ -18,7 +18,7 @@ class Oldlady(pygame.sprite.Sprite):
         self.limit_l, self.limit_r = self.relative_xpos - self.range, self.relative_xpos+ self.range/2
         self.value = 800
                 
-    def update(self, current_time, map_xpos):
+    def update(self, current_time, map_xpos, player_xy):
 
         if self.next_update_time <= current_time:
             if self.going_right:
@@ -60,7 +60,7 @@ class Guard(pygame.sprite.Sprite):
         self.value = 500
 
         
-    def update(self, current_time, map_xpos):
+    def update(self, current_time, map_xpos, player_xy):
         if self.next_update_time <= current_time:
             if self.going_right:
                 self.relative_xpos += self.step*2
@@ -79,12 +79,12 @@ class Guard(pygame.sprite.Sprite):
             self.next_update_time = current_time + 10
         
         if current_time > self.next_shot:
-            self.shoot()
-            self.next_shot = current_time + display.env.fire_delay
+            self.shoot(player_xy)
+            self.next_shot = current_time + (display.env.fire_delay * 2)
             
-    def shoot(self):
-        if self.going_right: groups.eshots.add(missiles.Bullets(self.rect.topright, (5, -5)))
-        if self.going_right == False: groups.eshots.add(missiles.Bullets(self.rect.topleft, (-5, -5)))
+    def shoot(self, player_xy):
+        if self.going_right: groups.eshots.add(missiles.Bullets(self.rect.topright, player_xy))
+        if self.going_right == False: groups.eshots.add(missiles.Bullets(self.rect.topleft, player_xy))
         
     def die(self):
         groups.targs.remove(self)

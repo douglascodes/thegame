@@ -46,8 +46,9 @@ class Ground(pygame.sprite.Sprite):         #Creates a ground/walkway for the fl
         for x in range(env.right/self.w):
             env.screen.blit(self.image, (x*self.w, env.floor))
 
-    def update(self):                           #The ground will move at half the windspeed
-        self.rect.left -= (env.windspeed/2)     #Although maybe this will change
+    def update(self, moving):                           #The ground will move at half the windspeed
+        if moving:
+                self.rect.left -= (env.windspeed/2)     #Although maybe this will change
         if self.rect.left < -(env.windspeed + self.w):  #If ground goes to far left
             self.rect.left = -env.windspeed             #Set it to the left side (0) of the screen - windspeed 
         for x in range((env.right/self.w) + 2 ):     
@@ -65,8 +66,9 @@ class Hill(pygame.sprite.Sprite):         #Creates hil;ly background
         for x in range(env.right / self.w):
             env.screen.blit(self.image, (x*self.w, env.floor - self.rect.height))
 
-    def update(self):                           #The hills will move at a 3rd of the wind
-        self.rect.left -= (env.windspeed / 3)     #Although maybe this will change
+    def update(self, moving):                               #The hills will move at a 3rd of the wind
+        if moving:
+            self.rect.left -= (env.windspeed / 3)       #Although maybe this will change
         if self.rect.left < -(env.windspeed + self.w):  #If hills start point goes too far left
             self.rect.left = -env.windspeed             #Set it to the left side (0) of the screen - windspeed 
         for x in range((env.right/self.w) + 2 ):     

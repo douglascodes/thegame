@@ -44,15 +44,16 @@ def check_hits():   #Collision detection between the ladies and balloon drops
     hits = pygame.sprite.groupcollide(groups.pshots, groups.targs, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
-        player.p1.adj_score(y[0].value)
         x.die()                         #Runs the die() method in object X
-        y[0].die()                      #Runs the die() method in object Y. It's a list for some reason.
+        for z in y:
+            player.p1.adj_score(z.value)
+            z.die()                      #Runs the die() method in object Y. It's a list for some reason.
 
     hits = pygame.sprite.groupcollide(groups.eshots, groups.players, False, False) #Adds collisions to hits
     for x in iter(hits):                #Searches over the collision dictionary
         y = hits[x]                     #X and Y are the collision. X is key to Y.
-        #y[0].adj_health(-x.power)       #adjusts the player health
         x.die()                         #Runs the die() method in object X
+        #y[0].adj_health(-x.power)       #adjusts the player health
 
 
 def check_cloud():                      #Maintains the level of clouds
@@ -70,7 +71,7 @@ def populate(curr_map):
         kind = kinds[rand(2)+1]
         curr_map.spawn_list.append([pos, kind])
 
-    curr_map.spawn_list.append([curr_map.length, "Goal"])   #adds a goal to the end of map
+    curr_map.spawn_list.append([curr_map.length + (display.env.scale * 3), "Goal"])   #adds a goal to the end of map
     curr_map.spawn_list = sorted(curr_map.spawn_list)    
     curr_map.next_spawn = curr_map.spawn_list.pop(0)
     curr_map.spawn_list.append([curr_map.length, "END"])   #Terminus to spawns
@@ -95,7 +96,7 @@ def game():
     populate(curr_map)
     curr_map.next_spawn = curr_map.spawn_list.pop(0)
     while player.p1.health:                #Game continues while P1 is alive
-        if curr_map.pos > curr_map.length: map_end()
+#        if curr_map.pos > curr_map.length: map_end()
         
         spawn(curr_map)           
         display.env.screen.fill(display.env.BLUE)           #fills the background with named color
@@ -104,11 +105,11 @@ def game():
         groups.clouds.update(now)           #passes the current time to the cloud update group
         groups.clouds.draw(screen)          #draws the clouds to screen
         curr_map.update()
-        groups.road.update()                   #Updates the single group 'road', no time is needed. Based on pos
+        groups.road.update(curr_map.moving)                   #Updates the single group 'road', no time is needed. Based on pos
         groups.road.draw(screen)               #Draws the road
         groups.players.draw(screen)            #updates the Player 
         player.p1.show_health()                #Displays the health bar
-        groups.targs.update(now, curr_map.pos)           #Makes the targs_grp move
+        groups.targs.update(now, curr_map.pos, player.p1.rect.midtop)           #Makes the targs_grp move
         groups.targs.draw(screen)          #Draws em to the screen
         groups.pshots.update(now)           #Updates the balloon drops
         groups.pshots.draw(screen)          #Draws em to screen

@@ -7,5 +7,5 @@ clouds = pygame.sprite.Group()      #holds clouds
 pshots = pygame.sprite.Group()      #holds all player projectiles
 eshots = pygame.sprite.Group()      #holds all enemy projectiles
 splashes = pygame.sprite.Group()      #holds all player projectiles
-road = pygame.sprite.Group()  #singular group for the Road/Path
+road = pygame.sprite.Group()  #group for the background/foreground stuff
 numof_clouds = 8                   #how many clouds do we want
