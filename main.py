@@ -11,9 +11,9 @@ def check_key():
     #if the players movement states are not == 0, then it operates.
     #Multiplying by the "State" turns the number negative or positive. Therefore fitting
     # to the move "amount" statements under the player move methods.  
-    if player.p1.horz_state != False:                               
+    if player.p1.horz_state:                               
         player.p1.move_horz(display.env.step * player.p1.horz_state)
-    if player.p1.vert_state != False:
+    if player.p1.vert_state:
         player.p1.move_vert(display.env.step * player.p1.vert_state)
     
     #Keydown states either escape, fire or set the move Dirs.
@@ -33,10 +33,8 @@ def check_key():
         #the display module. The "fire_timer" is an attribute of the player class.
                         
         if event.type == KEYUP:     #Setting to ZERO makes the states FALSE.
-            if event.key == K_UP: player.p1.vert_state = 0  
-            if event.key == K_DOWN: player.p1.vert_state = 0
-            if event.key == K_LEFT: player.p1.horz_state = 0
-            if event.key == K_RIGHT: player.p1.horz_state = 0
+            if event.key == K_UP or event.key == K_DOWN: player.p1.vert_state = 0  
+            if event.key == K_LEFT or event.key == K_RIGHT : player.p1.horz_state = 0
         #The release of any arrow key ceases movement of its axis.
         
             
@@ -57,7 +55,7 @@ def check_hits():   #Collision detection between the ladies and balloon drops
 
 
 def check_cloud():                      #Maintains the level of clouds
-    if len(groups.clouds) < groups.numof_clouds:   #Respawns clouds if there are less than expected.
+    while len(groups.clouds) < groups.numof_clouds:   #Respawns clouds if there are less than expected.
         groups.clouds.add(display.Cloud())  #Adds the new clouds to the group
 
 def populate(curr_map):
@@ -68,7 +66,7 @@ def populate(curr_map):
     kinds = ["None", "Oldlady", "Guard", "Goal"]
     for x in range(enemy_count): 
         pos = rand(curr_map.pos, curr_map.length)
-        kind = kinds[rand(2)+1]
+        kind = kinds[rand(len(kinds)-1)]
         curr_map.spawn_list.append([pos, kind])
 
     curr_map.spawn_list.append([curr_map.length + (display.env.scale * 3), "Goal"])   #adds a goal to the end of map
@@ -78,13 +76,17 @@ def populate(curr_map):
 
    
 def spawn(curr_map):
-    if curr_map.next_spawn[1] != "END":
-        while curr_map.next_spawn[0] < curr_map.pos + display.env.right + display.env.scale*2:
-            if curr_map.next_spawn[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_spawn[0], curr_map.pos))
-            elif curr_map.next_spawn[1] == "Oldlady": groups.targs.add(targets.Oldlady(curr_map.next_spawn[0], curr_map.pos))
-            elif curr_map.next_spawn[1] == "Goal": groups.targs.add(level.Goal(curr_map.next_spawn[0], curr_map.pos))
-            elif curr_map.next_spawn[1] == "END": return
+    if curr_map.next_spawn[1] == "END": return
+    
+    while curr_map.next_spawn[0] < curr_map.pos + display.env.right + display.env.scale * 2:
+        if curr_map.next_spawn[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_spawn[0], curr_map.pos))
+        elif curr_map.next_spawn[1] == "Oldlady": groups.targs.add(targets.Oldlady(curr_map.next_spawn[0], curr_map.pos))
+        elif curr_map.next_spawn[1] == "Goal": groups.targs.add(targets.Goal(curr_map.next_spawn[0], curr_map.pos))
+        try:
             curr_map.next_spawn = curr_map.spawn_list.pop(0)
+        except:
+            print "Empty spawn list."
+            return
 
 def map_end():
     exit_game()
@@ -109,7 +111,7 @@ def game():
         groups.road.draw(screen)               #Draws the road
         groups.players.draw(screen)            #updates the Player 
         player.p1.show_health()                #Displays the health bar
-        groups.targs.update(now, curr_map.pos, player.p1.rect.midtop)           #Makes the targs_grp move
+        groups.targs.update(now, curr_map.pos, player.p1.rect.midtop) #Makes the targs_grp move, needs player for shooting back
         groups.targs.draw(screen)          #Draws em to the screen
         groups.pshots.update(now)           #Updates the balloon drops
         groups.pshots.draw(screen)          #Draws em to screen

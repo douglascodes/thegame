@@ -36,46 +36,49 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
-class Ground(pygame.sprite.Sprite):         #Creates a ground/walkway for the floor
+class Scenery(pygame.sprite.Sprite):         #Creates a ground/walkway for the floor
     def __init__(self): 
         pygame.sprite.Sprite.__init__(self)     
-        self.image, self.rect = load_image("brick3.png", -1) #picks the graphic
+        self.get_graphic()
+        self.image = self.graphic
         self.w = self.rect.width                             
-        self.rect.topleft = (-self.w,env.floor)
-        self.end = (env.right, env.bottom)
-        for x in range(env.right/self.w):
-            env.screen.blit(self.image, (x*self.w, env.floor))
+        self.set_move_rate()
+        self.set_tile_start()
+        self.rect.top = self.start_tile_h
+        self.rect.left = 0
 
+    def get_graphic(self):
+        self.graphic, self.rect = load_image("brick1.png", -1)
+
+    def set_tile_start(self):
+        self.start_tile_h = env.floor
+        
+    def set_move_rate(self):
+        self.move_rate = 2
+        
     def update(self, moving):                           #The ground will move at half the windspeed
         if moving:
-                self.rect.left -= (env.windspeed/2)     #Although maybe this will change
+                self.rect.left -= (env.windspeed / self.move_rate)     #Although maybe this will change
         if self.rect.left < -(env.windspeed + self.w):  #If ground goes to far left
             self.rect.left = -env.windspeed             #Set it to the left side (0) of the screen - windspeed 
-        for x in range((env.right/self.w) + 2 ):     
-            env.screen.blit(self.image, (x*self.w + self.rect.left, env.floor))
+        for x in range((env.right / self.w) + 2 ):     
+            env.screen.blit(self.image, (x*self.w + self.rect.left, self.start_tile_h))
         #Finds the number of tiles needed, and adds 2. To keep the smoothness
         #Then draws the tiles over the foreground bottom.
 
-class Hill(pygame.sprite.Sprite):         #Creates hil;ly background
-    def __init__(self): 
-        pygame.sprite.Sprite.__init__(self)     
-        self.image, self.rect = load_image("hills.png", -1) #picks the graphic
-        self.w = self.rect.width                             
-        self.rect.topleft = (-self.w , (env.floor - self.rect.height))
-        self.end = (env.right, env.floor)
-        for x in range(env.right / self.w):
-            env.screen.blit(self.image, (x*self.w, env.floor - self.rect.height))
+class Ground(Scenery):         #Creates a ground/walkway for the floor
+    def get_graphic(self):
+        self.graphic, self.rect = load_image("brick1.png", -1)
 
-    def update(self, moving):                               #The hills will move at a 3rd of the wind
-        if moving:
-            self.rect.left -= (env.windspeed / 3)       #Although maybe this will change
-        if self.rect.left < -(env.windspeed + self.w):  #If hills start point goes too far left
-            self.rect.left = -env.windspeed             #Set it to the left side (0) of the screen - windspeed 
-        for x in range((env.right/self.w) + 2 ):     
-            env.screen.blit(self.image, (x*self.w + self.rect.left, env.floor - self.rect.height))
-        #Finds the number of tiles needed, and adds 2. To keep the smoothness
-        #Then draws the tiles over background, above the ground
+class Hill(Scenery):         #Creates hil;ly background
+    def get_graphic(self):
+        self.graphic, self.rect = load_image("hills.png", -1) #picks the graphic
 
+    def set_move_rate(self):
+        self.move_rate = 3
+
+    def set_tile_start(self):
+        self.start_tile_h = env.floor - self.rect.height
 
 class Cloud(pygame.sprite.Sprite):                      #background clouds, A La mario bros
     def __init__(self): 
