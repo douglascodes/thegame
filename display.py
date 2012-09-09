@@ -3,27 +3,27 @@ from pygame.locals import *
 
 rand = random.randrange
 
-class Env():
+class Environment():                                    #holds environment variables
     def __init__(self): 
-        self.scale = 256
-        self.bottom = self.scale * 3
+        self.scale = 256                        #basic unit of size for the game environment
+        self.bottom = self.scale * 3            #sets a 4:3 aspect ration
         self.right = self.scale * 4
-        self.BLUE = (135, 199, 218)
-        self.BLACK = (0,0,0)
-        self.initial_position = [100, 100]
-        self.floor = self.bottom - 64
-        self.windspeed = 5
-        self.max_health = 300
-        self.step = 20
-        self.screen = pygame.display.set_mode((self.right, self.bottom))
-        self.looptime = 30
-        self.fire_delay = 1000
+        self.BLUE = (135, 199, 218)             #A background fill color for the sky (RGB)
+        self.BLACK = (0,0,0)                    #An alternate background RGB set for black
+        self.initial_position = [100, 100]      #sets the player initial position
+        self.floor = self.bottom - 64           #sets a road level 64 pixels up from the bottom of the screen
+        self.windspeed = 5                      #A very important modifier, affects clouds, background movement
+        self.max_health = 300                   #Default player health
+        self.step = 20                          #Player movement step variable
+        self.screen = pygame.display.set_mode((self.right, self.bottom))    #Defines the game screen
+        self.looptime = 30                      #A pacing timer to 30 FPS
+        self.fire_delay = 1000                  #Default limiter for enemey/player shots
         
         pygame.init()
         pygame.display.flip()   
-        pygame.key.set_repeat(1, self.looptime)
+        pygame.key.set_repeat(1, self.looptime) #allows for continuous key presses at looptime rate 
         
-def load_image(name, colorkey=None):
+def load_image(name, colorkey=None):            #Code from pygame tutorial for basic image loading
     fullname = os.path.join('data', name)
     try:
         image = pygame.image.load(fullname).convert()
@@ -36,21 +36,21 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
-class Scenery(pygame.sprite.Sprite):         #Creates a ground/walkway for the floor
+class Scenery(pygame.sprite.Sprite):         #Generic scenary class
     def __init__(self): 
         pygame.sprite.Sprite.__init__(self)     
-        self.get_graphic()
-        self.image = self.graphic
-        self.w = self.rect.width                             
-        self.set_move_rate()
-        self.set_tile_start()
-        self.rect.top = self.start_tile_h
-        self.rect.left = 0
+        self.get_graphic()                      #Loads the individual graphic from class/sub
+        self.image = self.graphic               #Copys that into the main image for instance
+        self.w = self.rect.width                #Just a shorter way to read width from the rect
+        self.set_move_rate()                    #Sets the scenery move speed
+        self.get_tile_start()                   #gets the top limit for tiling
+        self.rect.top = self.start_tile_h       #Sets it
+        self.rect.left = 0                      #Sets the left side of tiling (0 is leftmost side of screen)
 
-    def get_graphic(self):
-        self.graphic, self.rect = load_image("brick1.png", -1)
+    def get_graphic(self):                      #method for retrieving the image
+        self.graphic, self.rect = load_image("brick1.png", -1) 
 
-    def set_tile_start(self):
+    def get_tile_start(self):                   #Sets the floor tile start height
         self.start_tile_h = env.floor
         
     def set_move_rate(self):
@@ -68,17 +68,17 @@ class Scenery(pygame.sprite.Sprite):         #Creates a ground/walkway for the f
 
 class Ground(Scenery):         #Creates a ground/walkway for the floor
     def get_graphic(self):
-        self.graphic, self.rect = load_image("brick1.png", -1)
+        self.graphic, self.rect = load_image("brick1.png", -1) #Need a better graphic here
 
-class Hill(Scenery):         #Creates hil;ly background
+class Hill(Scenery):         #Creates hilly background
     def get_graphic(self):
         self.graphic, self.rect = load_image("hills.png", -1) #picks the graphic
 
-    def set_move_rate(self):
+    def set_move_rate(self):    #Hills in the background scroll slow than the foreground
         self.move_rate = 3
 
-    def set_tile_start(self):
-        self.start_tile_h = env.floor - self.rect.height
+    def get_tile_start(self):                               #Sets the floor Hill start height
+        self.start_tile_h = env.floor - self.rect.height    #sits above the road
 
 class Cloud(pygame.sprite.Sprite):                      #background clouds, A La mario bros
     def __init__(self): 
@@ -90,7 +90,7 @@ class Cloud(pygame.sprite.Sprite):                      #background clouds, A La
         self.rect.left = env.right + rand(1, env.scale*5)                               
         self.next_update_time = 0
         #A couple things going on here. Picks randomly from 5 cloud types, each with its own image
-        #And relative speed based on the windspeed. Starts them a random distance off to the left side.
+        #And relative speed based on the windspeed. Starts them a random distance off to the right side.
         #To keep them from clumping up too much. It needs some work.
                 
     def update(self, current_time):                         #moves the cloud
@@ -106,7 +106,7 @@ class Cloud(pygame.sprite.Sprite):                      #background clouds, A La
     def die(self):
         groups.clouds.remove(self)             #dies by being removed from list.
 
-env = Env()
+env = Environment()
 g = Ground()                    #Creates the ground object known as G
 h = Hill()
 groups.road.add(g)              #Adds g to group for ground

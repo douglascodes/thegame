@@ -44,7 +44,7 @@ def check_hits():   #Collision detection between the ladies and balloon drops
         y = hits[x]                     #X and Y are the collision. X is key to Y.
         x.die()                         #Runs the die() method in object X
         for z in y:
-            player.p1.adj_score(z.value)
+            if z.value > 0: player.p1.adj_score(z.value)
             z.die()                      #Runs the die() method in object Y. It's a list for some reason.
 
     hits = pygame.sprite.groupcollide(groups.eshots, groups.players, False, False) #Adds collisions to hits
@@ -70,8 +70,8 @@ def populate(curr_map):
         curr_map.spawn_list.append([pos, kind])
 
     curr_map.spawn_list.append([curr_map.length + (display.env.scale * 3), "Goal"])   #adds a goal to the end of map
-    curr_map.spawn_list = sorted(curr_map.spawn_list)    
-    curr_map.next_spawn = curr_map.spawn_list.pop(0)
+    curr_map.spawn_list = sorted(curr_map.spawn_list)       #Sorts the spawn_list
+    curr_map.next_spawn = curr_map.spawn_list.pop(0)        #
     curr_map.spawn_list.append([curr_map.length, "END"])   #Terminus to spawns
 
    
@@ -98,16 +98,14 @@ def game():
     populate(curr_map)
     curr_map.next_spawn = curr_map.spawn_list.pop(0)
     while player.p1.health:                #Game continues while P1 is alive
-#        if curr_map.pos > curr_map.length: map_end()
-        
         spawn(curr_map)           
         display.env.screen.fill(display.env.BLUE)           #fills the background with named color
         clock.tick(display.env.looptime)         #Paces the game to 30 fps
-        now = pygame.time.get_ticks()   #sets 'NOW' to ... well... now
+        now = pygame.time.get_ticks()       #sets 'NOW' to ... well... now
         groups.clouds.update(now)           #passes the current time to the cloud update group
         groups.clouds.draw(screen)          #draws the clouds to screen
         curr_map.update()
-        groups.road.update(curr_map.moving)                   #Updates the single group 'road', no time is needed. Based on pos
+        groups.road.update(curr_map.moving)    #Updates the single group 'road', no time is needed. Based on pos
         groups.road.draw(screen)               #Draws the road
         groups.players.draw(screen)            #updates the Player 
         player.p1.show_health()                #Displays the health bar

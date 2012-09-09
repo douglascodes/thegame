@@ -1,27 +1,23 @@
-import pygame, sys, os, display, missiles, groups
+import pygame, sys, os, display, missiles, groups, level
 from pygame.locals import *
 
 class Player(pygame.sprite.Sprite):
-    image = None
-    vert_state = 0
-    horz_state = 0
-    fire_timer = 0
-       
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        if Player.image is None:
-            Player.image, Player.rect = display.load_image("balloon.png", -1)
-        
-        self.image, self.rect = Player.image, Player.rect
+        self.image, self.rect = display.load_image("balloon.png", -1)
         
         self.rect.topleft = display.env.initial_position    #sets the balloon start at IP 
         self.score = 0                                      #points total over game
-        self.health = display.env.max_health                #current health is 100
-        self.traveled = 0                                   #tracks game length
         self.points = 0                                     #points this round
-        self.hbarpos = (0,20)
-        self.pause_map = False
+        self.health = display.env.max_health                #current health is 100
+        self.hbarpos = (0,20)                               #Health bar initial position
+#        self.pause_map = False                              #used for testing
+
+        self.vert_state = 0
+        self.horz_state = 0
+        self.fire_timer = 0
+
 
     def update(self):
         display.env.screen.blit(self.image, self.rect)
@@ -30,7 +26,9 @@ class Player(pygame.sprite.Sprite):
         pass
     
     def win(self):                                  #tabulates the round points
-        self.score = self.traveled + self.points
+        self.score = int(level.map.pos) + self.points # + level.map.bonus
+        #increases successful level points plus distance traveled. + hitting goal bonus 
+        self.points = 0
     
     def fire_weapon(self):                          #drops a balloon
 #        self.pause_map = not self.pause_map
@@ -52,8 +50,8 @@ class Player(pygame.sprite.Sprite):
         self.check_health()
 
     def adj_score(self, amount):                   #checks the players current health
-        self.score += amount
-        print self.score
+        self.points += amount
+        print self.points
 
     def show_health(self):
         display.env.screen.fill([255,0,0], ((self.hbarpos), (display.env.max_health, 20)))    #fills h-bar with red

@@ -1,19 +1,19 @@
 import pygame, sys, os, display, missiles, random, groups
 from pygame.locals import *
 
-class Target(pygame.sprite.Sprite):
+class Target(pygame.sprite.Sprite): #Generic target class
     def __init__(self, ip, map_xpos):
         pygame.sprite.Sprite.__init__(self)
-        self.get_graphic()
-        self.r_image = self.image = self.graphic 
-        self.l_image = pygame.transform.flip(self.image, True, False)
-        self.range = display.env.scale *2
-        self.rect.top = (display.env.floor - self.rect.height)
-        self.next_update_time = 0
-        self.going_right = True
-        self.step = display.env.windspeed
-        self.rect.left = ip - map_xpos
-        self.relative_xpos = ip
+        self.get_graphic()                              #calls the individual graphic function for subclasses
+        self.r_image = self.image = self.graphic        #assigns this as the right image and main image 
+        self.l_image = pygame.transform.flip(self.image, True, False)   #flips the image for reverse direction assignment
+        self.range = display.env.scale *2               #Default range for a moving character about half a screen
+        self.rect.top = (display.env.floor - self.rect.height)  #sets the graphic to draw it from height to floor
+        self.next_update_time = 0                       #the update delay timer
+        self.going_right = True                         #all things start heading right
+        self.step = display.env.windspeed               #uses windspeed as a the speed of movement
+        self.rect.left = ip - map_xpos                  #places their location relative to screen
+        self.relative_xpos = ip                         #places their real map pos... passed from main
         self.next_shot = pygame.time.get_ticks() + display.env.fire_delay
         self.limit_l, self.limit_r = self.relative_xpos - self.range, self.relative_xpos+ self.range/2
         self.get_value()
@@ -90,7 +90,6 @@ class Goal(Target):
             self.next_update_time = current_time + 10
     
     def die(self):
-        return
-
+        pass
         
 rand = random.randrange
