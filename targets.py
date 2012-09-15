@@ -18,10 +18,11 @@ class Target(pygame.sprite.Sprite): #Generic target class
         self.limit_l, self.limit_r = self.relative_xpos - self.range, self.relative_xpos+ self.range/2
         self.get_value()
 
-    def shoot(self, current_time, player_xy):
+    def shoot(self, current_time, player):
         pass
 
-    def update(self, current_time, map_xpos, player_xy):
+    def update(self, current_time, map_xpos, player):
+        player_xy = player.rect.midtop
         if self.next_update_time <= current_time:
             if self.going_right:
                 self.relative_xpos += self.step*2
@@ -75,7 +76,7 @@ class Guard(Target):
         if self.going_right == False: groups.eshots.add(missiles.Bullets(self.rect.topleft, player_xy))
 
 class Goal(Target):
-
+    
     def get_graphic(self):
         self.graphic, self.rect = display.load_image("popcornstand.png", -1)
 
@@ -83,13 +84,37 @@ class Goal(Target):
         self.bonus = 1,000,000
         self.value = 0
 
-    def update(self, current_time, map_xpos, player_xy):
+    def update(self, current_time, map_xpos, player):   #keeps the goal in the correct relative position on screen
         if self.next_update_time <= current_time:
             self.rect.right = self.relative_xpos - map_xpos
         
             self.next_update_time = current_time + 10
+        
+        self.check_collide(self.rect.topleft, player)
     
-    def die(self):
-        pass
+    def check_collide(self, topleft, player):           
+        #Checks the collision between the player and the goal popcorn stand
+        #if player collides with the base of the stand it dies
+        #if it collides with "safe" part it triggers the die method under goal
+        #this will determine the bonus of the map
+                    
+        basket = player.rect.midbottom  #gets the middle of the balloon bottom position
+        #which is basically the basket's lowest position
+        self.popcorn_range_x = topleft[0] + self.rect.width #sets the X range of the goal 
+        self.popcorn_range_y = topleft[1] + self.rect.height / 3    #sets the top 1/3 as the safe landing area
+                
+        if self.popcorn_range_x >= basket[0] and topleft[0] <= basket[0]:
+            #checks whether the ballon center X pos is within the goal X range
+            if self.popcorn_range_y >= basket[1] and topleft[1] <= basket[1]:
+                #we have collided with the safe part
+                self.die()          #run die on goal
+            elif self.rect.bottom >= basket[1] and self.popcorn_range_y < basket[1]: 
+                #we have collided with the unsafe portion of the goal
+                player.die()        #set P1.health to 0 which ends the game
+
+    def die(self):                  #Kills the goal... this will be a successful landing
+        self.remove(groups.goals)   
+
+
         
 rand = random.randrange

@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         display.env.screen.blit(self.image, self.rect)
     
     def die(self):                                  #sets death animation and
-        pass
+        self.health = 0
     
     def win(self):                                  #tabulates the round points
         self.score = int(level.map.pos) + self.points # + level.map.bonus

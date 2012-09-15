@@ -81,7 +81,7 @@ def spawn(curr_map):
     while curr_map.next_spawn[0] < curr_map.pos + display.env.right + display.env.scale * 2:
         if curr_map.next_spawn[1] == "Guard": groups.targs.add(targets.Guard(curr_map.next_spawn[0], curr_map.pos))
         elif curr_map.next_spawn[1] == "Oldlady": groups.targs.add(targets.Oldlady(curr_map.next_spawn[0], curr_map.pos))
-        elif curr_map.next_spawn[1] == "Goal": groups.targs.add(targets.Goal(curr_map.next_spawn[0], curr_map.pos))
+        elif curr_map.next_spawn[1] == "Goal": groups.goals.add(targets.Goal(curr_map.next_spawn[0], curr_map.pos))
         try:
             curr_map.next_spawn = curr_map.spawn_list.pop(0)
         except:
@@ -105,12 +105,14 @@ def game():
         groups.clouds.update(now)           #passes the current time to the cloud update group
         groups.clouds.draw(screen)          #draws the clouds to screen
         curr_map.update()
-        groups.road.update(curr_map.moving)    #Updates the single group 'road', no time is needed. Based on pos
-        groups.road.draw(screen)               #Draws the road
+        groups.road.update(curr_map.moving)    #Updates the group 'road', no time is needed. Based on pos
+        groups.road.draw(screen)               #Draws the scenery
         groups.players.draw(screen)            #updates the Player 
         player.p1.show_health()                #Displays the health bar
-        groups.targs.update(now, curr_map.pos, player.p1.rect.midtop) #Makes the targs_grp move, needs player for shooting back
+        groups.targs.update(now, curr_map.pos, player.p1) #Makes the targs_grp move, needs player for shooting back
         groups.targs.draw(screen)          #Draws em to the screen
+        groups.goals.update(now, curr_map.pos, player.p1) #Makes the targs_grp move, needs player for shooting back
+        groups.goals.draw(screen)          #Draws em to the screen
         groups.pshots.update(now)           #Updates the balloon drops
         groups.pshots.draw(screen)          #Draws em to screen
         groups.eshots.update(now)           #Updates the enemy shots
